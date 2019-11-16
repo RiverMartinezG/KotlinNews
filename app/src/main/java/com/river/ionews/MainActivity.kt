@@ -2,9 +2,15 @@ package com.river.ionews
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.Response
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import org.json.JSONArray
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,6 +22,21 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
 
         val news = ArrayList<News>()
+
+        var queue = Volley.newRequestQueue(this)
+        var url: String = "https://newsapi.org/v2/everything?q=kotlin&from=2019-11-01&sortBy=publishedAt&apiKey=acaab48413c4495c98430b264ad7d7cb"
+        var myNews: JSONArray;
+
+        val jsonObjectRequest = JsonObjectRequest(url,
+            null,
+            Response.Listener { response ->
+                Log.i("PRO", "Response is: ${response}")
+                myNews = response.getJSONArray("articles")
+                Log.i("PRO", "Articles: ${myNews}")
+            },
+            Response.ErrorListener { error -> error.printStackTrace() })
+
+        queue.add(jsonObjectRequest)
 
         news.add(
             News(
