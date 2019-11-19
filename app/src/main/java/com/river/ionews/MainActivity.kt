@@ -13,7 +13,7 @@ import org.json.JSONArray
 import org.json.JSONException
 
 class MainActivity : AppCompatActivity() {
-    private val url: String = "https://newsapi.org/v2/everything?q=kotlin&from=2019-11-01&sortBy=publishedAt&apiKey=acaab48413c4495c98430b264ad7d7cb"
+    private val url: String = "https://newsapi.org/v2/everything?q=kotlin&from=2019-11-01&sortBy=publishedAt&language=en&apiKey=acaab48413c4495c98430b264ad7d7cb"
     private val news = ArrayList<News>()
     private lateinit var recyclerView: RecyclerView
 
@@ -50,8 +50,8 @@ class MainActivity : AppCompatActivity() {
 
                         // Get values from json Array
                         var title = item.getString("title")
-                        var excerpt = item.getString("description")
-                        var image = R.drawable.news_1
+                        var excerpt = item?.getString("description")
+                        var image = item?.getString("urlToImage")
 
                         // Set values from news Array List
                         news.add(

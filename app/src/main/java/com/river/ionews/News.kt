@@ -1,3 +1,3 @@
 package com.river.ionews
 
-class News (var title: String, var excerpt: String, var frontImage: Int)
+class News(var title: String, var excerpt: String?, var frontImage: String?)
