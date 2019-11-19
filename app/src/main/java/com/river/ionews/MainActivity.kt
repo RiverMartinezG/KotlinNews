@@ -5,60 +5,88 @@ import android.os.Bundle
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.Response
+import com.android.volley.Response.Listener
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import org.json.JSONArray
+import org.json.JSONException
 
 class MainActivity : AppCompatActivity() {
+    private val url: String = "https://newsapi.org/v2/everything?q=kotlin&from=2019-11-01&sortBy=publishedAt&apiKey=acaab48413c4495c98430b264ad7d7cb"
+    private val news = ArrayList<News>()
+    private lateinit var recyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val recyclerView: RecyclerView = findViewById(R.id.my_recycler_view)
+        // Set recyclerwiew layout
+        recyclerView = findViewById(R.id.my_recycler_view)
+
+        // Get data from endpoint
+        getData()
+    }
+
+    /**
+     * Get data from endpoint and set data to recyclerview
+     */
+    fun getData() {
+        // Volley queue
+        var queue = Volley.newRequestQueue(this)
+
+        // Set Volley Json Object with GET request
+        val newsJsonObjectRequest = JsonObjectRequest(url, null,
+            Listener { response ->
+                // On OK response
+                try {
+                    // Try parse the Json Array
+                    var newsJsonArray: JSONArray = response.getJSONArray("articles")
+
+                    // Loop for parse Json Array to news Array List
+                    for (i in 0 until newsJsonArray.length()) {
+                        // Get item from json Array
+                        var item = newsJsonArray.getJSONObject(i)
+
+                        // Get values from json Array
+                        var title = item.getString("title")
+                        var excerpt = item.getString("description")
+                        var image = R.drawable.news_1
+
+                        // Set values from news Array List
+                        news.add(
+                            News(
+                                title,
+                                excerpt,
+                                image
+                            )
+                        )
+                    }
+
+                    // Call to setup recycler view with data
+                    setupRecycler()
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
+            },
+            // On error response
+            Response.ErrorListener { error -> error.printStackTrace() })
+
+        // Add object request to Volley queue
+        queue.add(newsJsonObjectRequest)
+    }
+
+    /**
+     * Setup data for Recyclerview
+     */
+    private fun setupRecycler() {
+        // Set layoutmanager
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
 
-        val news = ArrayList<News>()
-
-        news.add(
-            News(
-                "Android now supports the Kotlin programming language",
-                "At its I/O 2017 developers conference today, Google announced Android is gaining official support for the Kotlin programming language, in addition to Java and C++. The news received the biggest applause from the audience so far. You can download the Kotlin plugin today for Android Studio.",
-                R.drawable.news_1
-            )
-        )
-
-        news.add(
-            News(
-                "Kotlin 1.0 Released: Pragmatic Language for JVM and Android",
-                "It’s been a long and exciting road but we’ve finally reached the first big 1.0, and we’re celebrating the release by also presenting you with the new logo",
-                R.drawable.news_2
-                )
-        )
-
-        news.add(
-            News(
-                "The Language that Stole Android Developers’ Hearts",
-                "In the early 1700s, Peter the Great, the czar of Russia, was busy nabbing land from his western neighbor, the Swedish Empire.",
-                R.drawable.news_3
-                )
-        )
-
-        news.add(
-            News(
-                "Building a fully featured burner phone with Kotlin",
-                "You walk into your favourite coffee shop and today they ask you if you’d like to register for a loyalty card. All they need is your name and phone number.",
-                R.drawable.news_4
-                )
-        )
-
-        news.add(
-            News(
-                "Javalin 1.0.0 released",
-                "Javalin is a very lightweight web framework for Kotlin and Java, inspired by Sparkjava and koa.js.",
-                R.drawable.news_5
-                )
-        )
-
+        // Set Adapter with news array list
         val adapter = AdapterNews(news)
 
+        // Set adapter to recycler
         recyclerView.adapter = adapter
     }
 }
